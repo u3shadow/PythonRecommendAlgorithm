@@ -5,11 +5,10 @@ import scipy.io as io
 
 from CheckCostFun import CheckCost
 from CostFunctionFi import cofiCostFunc
+from LoadMovieList import loadMovieList
 
 params = io.loadmat('ex8_movieParams.mat')
-print params.keys()
 movies = io.loadmat('ex8_movies.mat')
-print movies.keys()
 X = params['X']
 Y = movies['Y']
 R = movies['R']
@@ -42,6 +41,10 @@ print "New user rattings:"
 
 for i in range(0,my_ratings.size):
     if my_ratings[i] > 0:
-        print "Rated %d for %s"%my_ratings[i]%movieList[i]
+        print "Rated %d for %s"%(my_ratings[i],movieList[i])
+
+movies = io.loadmat('ex8_movies.mat')
+Y = movies['Y']
+R = movies['R']
 
 
