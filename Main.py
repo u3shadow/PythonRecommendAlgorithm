@@ -2,9 +2,12 @@
 # -*- coding: UTF-8 -*-
 import numpy as n
 import scipy.io as io
+import scipy as sci
 
 from CheckCostFun import CheckCost
 from CostFunctionFi import cofiCostFunc
+from CostFunctionFiJ import cofiCostFuncJ
+from CostFunctionFiG import cofiCostFuncG
 from LoadMovieList import loadMovieList
 
 params = io.loadmat('ex8_movieParams.mat')
@@ -46,5 +49,28 @@ for i in range(0,my_ratings.size):
 movies = io.loadmat('ex8_movies.mat')
 Y = movies['Y']
 R = movies['R']
+Y = n.column_stack((my_ratings,Y))
+R = n.column_stack((my_ratings,R))
+Yshape = Y.shape
+Ymean = n.zeros((Yshape[0],1))
+Ynorm = n.zeros(Yshape)
+for i in range(0,Yshape[0]):
+    idx = n.nonzero(R[i,:])
+    Ymean[i] = n.mean(Y[i,idx])
+    Ynorm[i,idx] = Y[i,idx] - Ymean[i]
+num_users =  Y.shape[1]
+num_movies = Y.shape[0]
+num_features = 10
+X = n.random.rand(num_movies,num_features)
+Theta = n.random.rand(num_users,num_features)
+
+initial_parameters =n.reshape (n.r_[X.flatten(1),Theta.flatten(1)],(-1,1),'F')
+lambd = 10
+theta = sci.optimize.fmin(lambda t : cofiCostFuncJ(t,Y,R,num_users,num_movies,num_features,lambd),initial_parameters)
+X = n.reshape(theta[0:num_movies*num_features],(num_movies,num_features),'F')
+Theta = n.reshape(theta[num_movies*num_features:],(num_users,num_features),'F')
+p = X.dot(Theta.T)
+my_predictions = p[:,1]+Ymean
+print "learning completed"
 
 
