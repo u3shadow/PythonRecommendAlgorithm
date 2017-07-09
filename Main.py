@@ -9,6 +9,8 @@ from CostFunctionFi import cofiCostFunc
 from CostFunctionFiJ import cofiCostFuncJ
 from CostFunctionFiG import cofiCostFuncG
 from LoadMovieList import loadMovieList
+from Options import Options
+from fmincg import fmincg
 
 params = io.loadmat('ex8_movieParams.mat')
 movies = io.loadmat('ex8_movies.mat')
@@ -23,9 +25,8 @@ X = X[0:num_movies][:,0:num_features]
 Theta = Theta[0:num_users][:,0:num_features]
 Y = Y[0:num_movies][:,0:num_users]
 R = R[0:num_movies][:,0:num_users]
-J = cofiCostFunc(n.reshape(n.r_[X.flatten(1),Theta.flatten(1)],(-1,1),'F'),Y,R,num_users,num_movies,num_features,1.5)
+J = cofiCostFunc(n.reshape(n.r_[X.flatten(1),Theta.flatten(1)],(-1,1),'F'),Y,R,num_users,num_movies,num_features,10)
 CheckCost(1.5)
-
 movieList = loadMovieList()
 my_ratings = n.zeros((1682,1))
 my_ratings[0] = 4
@@ -63,14 +64,22 @@ num_movies = Y.shape[0]
 num_features = 10
 X = n.random.rand(num_movies,num_features)
 Theta = n.random.rand(num_users,num_features)
-
 initial_parameters =n.reshape (n.r_[X.flatten(1),Theta.flatten(1)],(-1,1),'F')
 lambd = 10
-theta = sci.optimize.fmin(lambda t : cofiCostFuncJ(t,Y,R,num_users,num_movies,num_features,lambd),initial_parameters)
+#fmin_cg(lambda t: nnCostFunction(t, input_layer_size, hidden_layer_size, num_labels, X, y, lam), initial_nn_params, gtol = 0.001, maxiter = 40, full_output=1)
+'''option = Options("Gradobj",100)
+#theta = fmincg(lambda t : cofiCostFuncJ(t,Y,R,num_users,num_movies,num_features,lambd),initial_parameters,option)
 X = n.reshape(theta[0:num_movies*num_features],(num_movies,num_features),'F')
 Theta = n.reshape(theta[num_movies*num_features:],(num_users,num_features),'F')
+dic = {'X1':X,'Theta1':Theta}
+io.savemat("fmin.mat",dic)
+print "learning completed"
 p = X.dot(Theta.T)
 my_predictions = p[:,1]+Ymean
-print "learning completed"
+my_predictions = n.sort(my_predictions)
+print my_predictions
+#for i in range(my_predictions.size-11,my_predictions.size):
+ #   print movieList[i],my_predictions[i]
+print "learning completed"'''
 
 
